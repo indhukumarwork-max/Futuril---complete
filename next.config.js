@@ -6,7 +6,5 @@ module.exports = {
   },
   eslint: { ignoreDuringBuilds: true },
   typescript: { ignoreBuildErrors: true },
-  experimental: {
-    optimizePackageImports: true,
-  },
+  optimizePackageImports: true,
 };

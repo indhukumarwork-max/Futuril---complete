@@ -1,4 +1,6 @@
 # Supabase configuration for Futuril
+
+# Replace with your Supabase project ID if different
 project_id = "ljzrovpkklsklypszxdg"
 
 # Optional: set the path to migrations (default is ./supabase/migrations)
