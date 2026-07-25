@@ -1,4 +1,3 @@
-// src/app/api/v1/auth/logout/route.ts
 import { NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/src/lib/supabase/server';
 
@@ -8,8 +7,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Missing Authorization header' }, { status: 401 });
   }
   const token = authHeader.split(' ')[1];
-  // Revoke the refresh token using Supabase admin API
-  const { error } = await supabaseAdmin.auth.api.revokeRefreshToken(token);
+  const { error } = await supabaseAdmin.auth.admin.signOut(token);
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 400 });
   }

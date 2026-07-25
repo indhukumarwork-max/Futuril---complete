@@ -6,5 +6,5 @@ module.exports = {
   },
   eslint: { ignoreDuringBuilds: true },
   typescript: { ignoreBuildErrors: true },
-  optimizePackageImports: true,
+  // optimizePackageImports removed – not supported in Next.js 14
 };

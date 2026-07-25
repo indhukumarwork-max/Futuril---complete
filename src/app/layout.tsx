@@ -1,11 +1,9 @@
-
-// app/layout.tsx
 import './globals.css';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: 'Futuril',
-  description: 'Futuril application',
+  description: 'Futuril Application',
 };
 
 export default function RootLayout({
@@ -14,8 +12,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="bg-pearlSilver min-h-screen">
-      <body className="flex items-center justify-center">
+    <html lang="en" className="bg-bg min-h-screen">
+      <body className="min-h-screen text-ink antialiased">
         {children}
       </body>
     </html>

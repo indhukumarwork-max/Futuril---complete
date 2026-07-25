@@ -1,11 +1,11 @@
 import React from 'react';
 
-interface CardProps {
+export interface CardProps {
   children: React.ReactNode;
   className?: string;
 }
 
 export const Card: React.FC<CardProps> = ({ children, className = '' }) => {
-  const baseClasses = 'bg-surface border border-border rounded-lg shadow-sm p-4';
+  const baseClasses = 'bg-surface border border-border rounded-xl shadow-sm p-6 text-ink';
   return <div className={`${baseClasses} ${className}`}>{children}</div>;
 };

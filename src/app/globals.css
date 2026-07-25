@@ -1,0 +1,33 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Core Base Surface & Background Tokens */
+  --color-bg: HSL(210, 20%, 98%);               /* Pearl Silver Light Base */
+  --color-surface: HSL(0, 0%, 100%);             /* Clean White Surface */
+  --color-surface-2: HSL(210, 25%, 95%);           /* Secondary Surface */
+  --color-border: HSL(210, 20%, 88%);              /* Crisp Border */
+  --color-border-hover: HSL(210, 20%, 75%);        /* Active Border */
+
+  /* Text & Ink Tokens */
+  --color-ink: HSL(222, 47%, 11%);                 /* Deep Ink Text (#0f172a) */
+  --color-secondary: HSL(215, 16%, 47%);           /* Muted Ink Secondary (#64748b) */
+  --color-ink-on-accent: HSL(0, 0%, 100%);         /* Text on Accent Accent (#ffffff) */
+
+  /* Primary Accent System (Futuril Indigo-Cyber Accent) */
+  --color-accent: HSL(245, 82%, 60%);              /* Primary Accent (#5850ec) */
+  --color-accent-hover: HSL(245, 82%, 52%);        /* Hover Accent (#4338ca) */
+  --color-accent-subtle: HSL(245, 82%, 96%);       /* Subtle Accent Tint (#eef2ff) */
+  --color-accent-border: HSL(245, 82%, 85%);       /* Accent Border (#c7d2fe) */
+
+  /* Secondary Accent System (Futuril Slate Metallic) */
+  --color-secondary-bg: HSL(215, 25%, 27%);        /* Secondary Button/Badge (#334155) */
+  --color-secondary-hover: HSL(215, 25%, 18%);     /* Secondary Hover (#1e293b) */
+
+  /* State Tokens */
+  --color-destructive: HSL(0, 72%, 51%);           /* Danger (#ef4444) */
+  --color-destructive-bg: HSL(0, 86%, 97%);        /* Danger Surface (#fef2f2) */
+  --color-success: HSL(142, 71%, 45%);             /* Success (#22c55e) */
+  --color-success-bg: HSL(142, 76%, 96%);          /* Success Surface (#f0fdf4) */
+}
