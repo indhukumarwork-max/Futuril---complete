@@ -12,7 +12,11 @@
    - All UI components, styles, 3D elements, and API middleware must be integrated into `src/`.
    - Test routes (e.g., `/primitives`, `/kiki-test`) must exist inside `src/app/` in the same application.
 
-3. **Phase Delivery Workflow**:
+3. **Production-Ready Implementation (No Placeholders)**:
+   - Do NOT use placeholder implementations, temporary shapes, default colours, or mock layouts unless explicitly permitted in the PRD.
+   - Implement production-ready screens and components adhering strictly to the Futuril design system tokens, typography, animations, and specification.
+
+4. **Phase Delivery Workflow**:
    - After completing each phase:
      1. Integrate code directly into the main application codebase (`src/`).
      2. Verify functionality and regression on `http://localhost:3000`.

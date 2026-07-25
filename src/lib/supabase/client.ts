@@ -1,8 +1,7 @@
 // src/lib/supabase/client.ts
 import { createClient } from '@supabase/supabase-js';
 
-// Public anon client – used on the client side (if needed) and for auth actions that do not require admin privileges.
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL as string;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY as string;
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'http://127.0.0.1:54321';
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'dummy-anon-key-for-build';
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);

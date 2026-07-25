@@ -1,113 +1,135 @@
 'use client';
 
 import * as THREE from 'three';
-import { useRef } from 'react';
+import React, { useRef, useMemo } from 'react';
 import { useFrame } from '@react-three/fiber';
 import PearlSilverMaterial from './KikiMaterial';
 import KikiGlow from './KikiGlow';
 
 type Size = 'sm' | 'md' | 'lg';
 
-interface KikiProps {
+export interface KikiProps {
   size?: Size;
   state?: 'idle' | 'listening' | 'speaking' | 'thinking' | 'excited';
-  className?: string;
+  wink?: boolean;
+  shimmer?: boolean;
+  float?: boolean;
 }
 
-export default function Kiki({ size = 'md', state = 'idle' }: KikiProps) {
+export default function Kiki({
+  size = 'md',
+  state = 'idle',
+  wink = false,
+  shimmer = false,
+  float = false,
+}: KikiProps) {
   const groupRef = useRef<THREE.Group>(null);
   const lightRef = useRef<THREE.PointLight>(null);
-  const leftEyeRef = useRef<THREE.Mesh>(null);
   const rightEyeRef = useRef<THREE.Mesh>(null);
 
-  // Scale mapping per design system
-  const scaleMap: Record<Size, number> = { sm: 0.8, md: 1.1, lg: 1.5 };
+  // Size scale mapping (sm reduced by 30-40% to ~0.24 for delicate solar mascot)
+  const scaleMap: Record<Size, number> = { sm: 0.24, md: 0.7, lg: 1.1 };
 
-  // Idle animations: gentle float/bobbing + 3s soft white glow pulse
+  // Create rounded 5-point star 3D geometry
+  const starShape = useMemo(() => {
+    const shape = new THREE.Shape();
+    const points = 5;
+    const outerRadius = 0.85;
+    const innerRadius = 0.42;
+
+    for (let i = 0; i < points * 2; i++) {
+      const radius = i % 2 === 0 ? outerRadius : innerRadius;
+      const angle = (i * Math.PI) / points - Math.PI / 2;
+      const x = Math.cos(angle) * radius;
+      const y = Math.sin(angle) * radius;
+      if (i === 0) shape.moveTo(x, y);
+      else shape.lineTo(x, y);
+    }
+    shape.closePath();
+    return shape;
+  }, []);
+
+  const extrudeSettings = useMemo(
+    () => ({
+      depth: 0.3,
+      bevelEnabled: true,
+      bevelSegments: 8,
+      steps: 2,
+      bevelSize: 0.1,
+      bevelThickness: 0.1,
+    }),
+    []
+  );
+
+  // Idle floating and animation kinetics
   useFrame(({ clock }) => {
     const t = clock.getElapsedTime();
 
-    // Levitation / idle float
-    if (groupRef.current) {
-      groupRef.current.position.y = Math.sin(t * 1.5) * 0.08;
-      groupRef.current.rotation.y = Math.sin(t * 0.5) * 0.05;
+    // Floating bobbing motion only when float === true
+    if (groupRef.current && float) {
+      groupRef.current.position.y = Math.sin(t * 1.5) * 0.05;
     }
 
-    // 3s soft white idle glow pulse
+    // Smooth eye wink kinetics
+    if (rightEyeRef.current) {
+      const targetScaleY = wink ? 0.08 : 1.0;
+      rightEyeRef.current.scale.y = THREE.MathUtils.lerp(
+        rightEyeRef.current.scale.y,
+        targetScaleY,
+        0.2
+      );
+    }
+
+    // Pearl shimmer light intensity
     if (lightRef.current && state === 'idle') {
-      const pulse = (Math.sin((t / 3) * Math.PI * 2) + 1) / 2; // 0..1
-      lightRef.current.intensity = 0.6 + pulse * 0.4;
-    }
-
-    // Subtle eye breathing glow
-    if (leftEyeRef.current && rightEyeRef.current) {
-      const eyeGlow = 0.8 + Math.sin(t * 2) * 0.2;
-      const matL = leftEyeRef.current.material as THREE.MeshStandardMaterial;
-      const matR = rightEyeRef.current.material as THREE.MeshStandardMaterial;
-      if (matL && matR) {
-        matL.emissiveIntensity = eyeGlow;
-        matR.emissiveIntensity = eyeGlow;
-      }
+      const pulse = (Math.sin((t / 3) * Math.PI * 2) + 1) / 2;
+      const baseIntensity = shimmer ? 1.5 : 0.6;
+      lightRef.current.intensity = baseIntensity + pulse * 0.3;
     }
   });
 
   return (
     <group ref={groupRef} scale={scaleMap[size]}>
-      {/* 1. Main Head / Body Dome */}
-      <mesh position={[0, 0, 0]}>
-        <sphereGeometry args={[0.9, 32, 32]} />
-        <PearlSilverMaterial />
-      </mesh>
+      {/* 1. Five-Point Star Mascot Body */}
+      <group position={[0, 0, -0.2]}>
+        <mesh>
+          <extrudeGeometry args={[starShape, extrudeSettings]} />
+          <PearlSilverMaterial shimmer={shimmer} />
+        </mesh>
+      </group>
 
-      {/* 2. Sleek Dark Visor Faceplate */}
-      <mesh position={[0, 0.05, 0.15]} rotation={[0.2, 0, 0]}>
-        <sphereGeometry args={[0.78, 32, 16, 0, Math.PI, 0, Math.PI / 2.2]} />
+      {/* 2. Glassmorphic Visor Display */}
+      <mesh position={[0, 0, 0.12]}>
+        <circleGeometry args={[0.32, 32]} />
         <meshPhysicalMaterial
           color="#0f172a"
           roughness={0.1}
           metalness={0.9}
-          clearcoat={1}
-          clearcoatRoughness={0.1}
+          clearcoat={1.0}
         />
       </mesh>
 
-      {/* 3. Expressive Digital Eye Nodes */}
-      <mesh ref={leftEyeRef} position={[-0.28, 0.12, 0.82]}>
-        <sphereGeometry args={[0.08, 16, 16]} />
+      {/* 3. Left Eye (Glowing Node) */}
+      <mesh position={[-0.11, 0.02, 0.14]}>
+        <sphereGeometry args={[0.05, 16, 16]} />
         <meshStandardMaterial
           color="#38bdf8"
           emissive="#38bdf8"
-          emissiveIntensity={1.0}
-          roughness={0.2}
+          emissiveIntensity={1.2}
         />
       </mesh>
-      <mesh ref={rightEyeRef} position={[0.28, 0.12, 0.82]}>
-        <sphereGeometry args={[0.08, 16, 16]} />
+
+      {/* 4. Right Eye (Winking Node) */}
+      <mesh ref={rightEyeRef} position={[0.11, 0.02, 0.14]}>
+        <sphereGeometry args={[0.05, 16, 16]} />
         <meshStandardMaterial
           color="#38bdf8"
           emissive="#38bdf8"
-          emissiveIntensity={1.0}
-          roughness={0.2}
+          emissiveIntensity={1.2}
         />
       </mesh>
 
-      {/* 4. Side Ear Pods */}
-      <mesh position={[-0.92, 0.05, 0]} rotation={[0, 0, Math.PI / 2]}>
-        <cylinderGeometry args={[0.16, 0.16, 0.25, 24]} />
-        <PearlSilverMaterial />
-      </mesh>
-      <mesh position={[0.92, 0.05, 0]} rotation={[0, 0, Math.PI / 2]}>
-        <cylinderGeometry args={[0.16, 0.16, 0.25, 24]} />
-        <PearlSilverMaterial />
-      </mesh>
-
-      {/* 5. Floating Torso Halo Core */}
-      <mesh position={[0, -0.85, 0]} rotation={[Math.PI / 2, 0, 0]}>
-        <torusGeometry args={[0.65, 0.06, 16, 32]} />
-        <PearlSilverMaterial />
-      </mesh>
-
-      {/* 6. Soft White Idle Glow Light */}
+      {/* 5. Soft Pearl Light Glow */}
       <KikiGlow ref={lightRef} />
     </group>
   );

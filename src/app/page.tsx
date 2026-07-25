@@ -1,29 +1,38 @@
-import React from 'react';
-import Link from 'next/link';
+'use client';
 
-export default function HomePage() {
-  return (
-    <main className="flex min-h-screen flex-col items-center justify-center p-8 bg-bg">
-      <div className="max-w-md w-full text-center space-y-6">
-        <h1 className="text-4xl font-bold text-ink">Welcome to Futuril</h1>
-        <p className="text-lg text-secondary">
-          Select a test view to inspect application features and components:
-        </p>
-        <div className="flex flex-col space-y-3 pt-4">
-          <Link
-            href="/primitives"
-            className="w-full px-6 py-3 bg-accent text-white font-medium rounded-lg hover:bg-accent-tint transition-colors shadow-sm"
-          >
-            UI Primitives Demo (`/primitives`)
-          </Link>
-          <Link
-            href="/kiki-test"
-            className="w-full px-6 py-3 bg-surface border border-border text-ink font-medium rounded-lg hover:bg-surface-2 transition-colors shadow-sm"
-          >
-            Kiki 3D Component Test (`/kiki-test`)
-          </Link>
-        </div>
-      </div>
-    </main>
-  );
+import React, { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import SplashScreen from '@/src/components/splash/SplashScreen';
+
+export default function RootPage() {
+  const router = useRouter();
+  const [shouldRenderSplash, setShouldRenderSplash] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    // Check if splash screen was already seen in current browser session
+    const splashSeen = sessionStorage.getItem('futuril_splash_seen');
+    if (splashSeen === 'true') {
+      setShouldRenderSplash(false);
+      router.replace('/login');
+    } else {
+      setShouldRenderSplash(true);
+    }
+  }, [router]);
+
+  // Prevent flash during initial hydration check
+  if (shouldRenderSplash === null) {
+    return (
+      <main className="fixed inset-0 bg-[#090d16] flex items-center justify-center text-[#f8fafc]" />
+    );
+  }
+
+  if (!shouldRenderSplash) {
+    return (
+      <main className="fixed inset-0 bg-[#090d16] flex items-center justify-center text-[#f8fafc]">
+        <div className="text-sm text-secondary">Redirecting to Authentication...</div>
+      </main>
+    );
+  }
+
+  return <SplashScreen />;
 }
