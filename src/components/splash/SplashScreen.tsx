@@ -2,13 +2,14 @@
 
 import React, { useState, useRef, Suspense } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { Text } from '@react-three/drei';
+import { Text, Environment } from '@react-three/drei';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import * as THREE from 'three';
 import OrbitRings from './OrbitRings';
 import SpaceParticles from './SpaceParticles';
 import Kiki from '../kiki/Kiki';
+import DNAHelix from '../3d/DNAHelix';
 
 interface SplashSceneProps {
   onSequenceComplete: () => void;
@@ -16,17 +17,11 @@ interface SplashSceneProps {
 }
 
 /**
- * Single Unified 3D WebGL Scene Hierarchy:
- * Canvas
- *  ├── SpaceParticles (Stars & Micro Stardust)
- *  ├── OrbitRings (5 Complete 360° THREE.EllipseCurve Vector Rings)
- *  ├── FUTURIL 3D Text Mesh (Real 3D Object at z = 0)
- *  ├── Kiki 3D Mesh (Outer Orbit Satellite)
- *  └── Lighting
- *
- * Full 360° Orbit Visibility & Zero Edge Clipping:
- * Viewport container max-w-4xl h-[560px] with camera z = 5.2 guarantees the entire 360° outer orbit
- * (outerRadiusX = 2.432) fits comfortably with generous dark negative space padding.
+ * Premium 3D Permanent Luxury Sculpture Splash Scene:
+ * - Permanent 3D DNA Hero Sculpture (100% independent of mouse cursor tracking).
+ * - Microscopic Crystal Particles with fluid air-flow cursor interaction.
+ * - 3D Liquid Chrome Torus Orbit Rings & 3D FUTURIL metallic wordmark.
+ * - Kiki orbits smoothly on outer ring -> pause front-center -> wink + pearl shimmer -> smooth transition to /login.
  */
 function SplashScene({ onSequenceComplete, onFrontCenterReached }: SplashSceneProps) {
   const kikiGroupRef = useRef<THREE.Group>(null);
@@ -35,6 +30,7 @@ function SplashScene({ onSequenceComplete, onFrontCenterReached }: SplashScenePr
 
   const [isWinking, setIsWinking] = useState(false);
   const [isShimmering, setIsShimmering] = useState(false);
+  const [dnaPulse, setDnaPulse] = useState(false);
 
   // Solar orbit radii
   const radiusX = 1.6;
@@ -43,13 +39,13 @@ function SplashScene({ onSequenceComplete, onFrontCenterReached }: SplashScenePr
   const outerRadiusX = radiusX * outerMultiplier; // 2.432
   const outerRadiusY = radiusY * outerMultiplier; // 1.14
 
-  const sequenceDuration = 3.0; // Exactly 3.0 seconds revolution
+  const sequenceDuration = 3.0; // Exactly 3.0s revolution
 
   const startTimeRef = useRef<number | null>(null);
   const reachedFrontRef = useRef(false);
   const finishedRef = useRef(false);
 
-  useFrame(({ clock }) => {
+  useFrame(({ clock, camera }) => {
     if (startTimeRef.current === null) {
       startTimeRef.current = clock.getElapsedTime();
     }
@@ -57,29 +53,31 @@ function SplashScene({ onSequenceComplete, onFrontCenterReached }: SplashScenePr
     const elapsed = clock.getElapsedTime() - startTimeRef.current;
     const progress = Math.min(elapsed / sequenceDuration, 1.0);
 
-    // Smooth entrance scale (0.96 -> 1.0)
+    // Camera slow dolly in (5.2 -> 4.95)
+    const targetZ = 5.2 - progress * 0.25;
+    camera.position.z = THREE.MathUtils.lerp(camera.position.z, targetZ, 0.05);
+
+    // Smooth logo entrance scale
     if (logoGroupRef.current) {
       const entrance = Math.min(elapsed / 0.8, 1.0);
       const scale = 0.96 + entrance * 0.04;
       logoGroupRef.current.scale.set(scale, scale, scale);
     }
 
-    // Subtle entrance shimmer pulse across 3D letter material
+    // Entrance shimmer pulse across 3D letter material
     if (logoMaterialRef.current && elapsed <= 1.0) {
-      const pulse = Math.sin((elapsed / 1.0) * Math.PI);
-      logoMaterialRef.current.emissiveIntensity = 0.15 + pulse * 0.25;
+      const pulseVal = Math.sin((elapsed / 1.0) * Math.PI);
+      logoMaterialRef.current.emissiveIntensity = 0.15 + pulseVal * 0.25;
     }
 
     // Orbital angle theta starting at 0 (Right side of outer ring) -> 2π (360° full orbit)
     const theta = progress * Math.PI * 2;
-    const tiltX = 0.4; // ~23° orbital tilt
+    const tiltX = 0.4;
 
     if (kikiGroupRef.current) {
-      // Calculate 3D position exclusively along the outermost orbit ring
       const rawX = Math.cos(theta) * outerRadiusX;
       const rawZ = Math.sin(theta) * outerRadiusY;
 
-      // Apply 3D orbital transform
       const vec = new THREE.Vector3(rawX, 0, rawZ);
       vec.applyEuler(new THREE.Euler(tiltX, 0, 0));
 
@@ -87,14 +85,15 @@ function SplashScene({ onSequenceComplete, onFrontCenterReached }: SplashScenePr
       kikiGroupRef.current.rotation.y = -theta + Math.PI / 2;
     }
 
-    // Complete 1 Full Revolution on Outer Ring at 3.0s (Stops back on right side of outer ring)
+    // Complete 1 Full Revolution on Outer Ring at 3.0s
     if (progress >= 1.0 && !reachedFrontRef.current) {
       reachedFrontRef.current = true;
       setIsWinking(true);
       setIsShimmering(true);
+      setDnaPulse(true);
       onFrontCenterReached();
 
-      // Pause 0.8s on outer ring (3.0s to 3.8s) before transition
+      // Pause 0.8s on outer ring before transition to /login
       setTimeout(() => {
         if (!finishedRef.current) {
           finishedRef.current = true;
@@ -106,19 +105,23 @@ function SplashScene({ onSequenceComplete, onFrontCenterReached }: SplashScenePr
 
   return (
     <>
-      {/* 1. Lighting */}
-      <ambientLight intensity={0.55} />
-      <directionalLight position={[5, 7, 5]} intensity={1.3} />
-      <pointLight position={[-5, 3, -4]} intensity={0.4} color="#e2e8f0" />
-      <pointLight position={[0, -3, 3]} intensity={0.3} color="#ffffff" />
+      {/* 1. HDR Environment Reflections & Specular Lighting */}
+      <Environment preset="city" />
+      <ambientLight intensity={0.45} />
+      <directionalLight position={[5, 7, 5]} intensity={1.5} />
+      <pointLight position={[-5, 3, -4]} intensity={0.6} color="#ffffff" />
+      <pointLight position={[0, -3, 3]} intensity={0.4} color="#fef08a" />
 
-      {/* 2. Stars & Space Dust Particles */}
-      <SpaceParticles count={450} />
+      {/* 2. Slowly Rotating 3D Liquid Chrome DNA Helix Sculpture (Independent of mouse movement) */}
+      <DNAHelix pulse={dnaPulse} position={[0, 0, -1.8]} scale={0.72} />
 
-      {/* 3. 5 Complete 360° Vector Orbit Rings (z = -0.15) */}
+      {/* 3. Microscopic Crystal Particles (Fluid Air Flow Cursor Interaction Only) */}
+      <SpaceParticles count={1000} />
+
+      {/* 4. 5 3D Liquid Chrome Torus Orbit Rings (z = -0.15) */}
       <OrbitRings radiusX={radiusX} radiusY={radiusY} />
 
-      {/* 4. FUTURIL 3D Text Mesh (Real 3D Object at z = 0 with solid depth testing) */}
+      {/* 5. FUTURIL 3D Text Mesh (Real 3D Object at z = 0 with Chrome Finish) */}
       <group ref={logoGroupRef} position={[0, 0, 0]}>
         <Text
           fontSize={0.48}
@@ -134,9 +137,9 @@ function SplashScene({ onSequenceComplete, onFrontCenterReached }: SplashScenePr
           FUTURIL
           <meshPhysicalMaterial
             ref={logoMaterialRef}
-            color="#f8fafc"
-            metalness={0.65}
-            roughness={0.15}
+            color="#ffffff"
+            metalness={0.92}
+            roughness={0.06}
             clearcoat={1.0}
             sheen={0.5}
             sheenColor="#ffffff"
@@ -149,7 +152,7 @@ function SplashScene({ onSequenceComplete, onFrontCenterReached }: SplashScenePr
         </Text>
       </group>
 
-      {/* 5. Kiki 3D Mesh (Revolves on Outermost Orbit with True WebGL Depth Occlusion) */}
+      {/* 6. Kiki 3D Mascot Mesh */}
       <group ref={kikiGroupRef}>
         <Kiki size="sm" state="idle" wink={isWinking} shimmer={isShimmering} float={false} />
       </group>
@@ -184,9 +187,12 @@ export default function SplashScreen() {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0, scale: 0.98 }}
           transition={{ duration: 0.6, ease: 'easeInOut' }}
-          className="fixed inset-0 z-50 flex items-center justify-center bg-[#030712] text-[#f8fafc] overflow-hidden select-none"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-[#070709] text-[#f8fafc] overflow-hidden select-none"
         >
-          {/* Centered Viewport Container (Expanded for full 360° orbit visibility without edge clipping) */}
+          {/* Subtle Specular Backdrop */}
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(255,255,255,0.04)_0%,transparent_70%)] pointer-events-none" />
+
+          {/* Centered Viewport Container */}
           <div className="relative w-full max-w-4xl h-[560px] flex items-center justify-center">
             <Canvas
               camera={{ position: [0, 0, 5.2], fov: 45 }}

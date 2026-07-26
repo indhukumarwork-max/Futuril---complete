@@ -3,31 +3,94 @@
 @tailwind utilities;
 
 :root {
-  /* Core Base Surface & Background Tokens */
-  --color-bg: HSL(210, 20%, 98%);               /* Pearl Silver Light Base */
-  --color-surface: HSL(0, 0%, 100%);             /* Clean White Surface */
-  --color-surface-2: HSL(210, 25%, 95%);           /* Secondary Surface */
-  --color-border: HSL(210, 20%, 88%);              /* Crisp Border */
-  --color-border-hover: HSL(210, 20%, 75%);        /* Active Border */
+  /* Apple Vision Pro Spatial Material System */
+  --color-bg: HSL(240, 14%, 4%);                /* Layered Obsidian Black (#070709) */
+  --color-surface: HSL(240, 10%, 8%);           /* Translucent Spatial Glass Surface (#121319) */
+  --color-surface-2: HSL(240, 10%, 14%);        /* Secondary Spatial Glass Surface (#1e2029) */
+  --color-border: HSL(0, 0%, 100%, 0.12);        /* Brushed Silver Specular Border */
+  --color-border-hover: HSL(0, 0%, 100%, 0.28);  /* Iridescent Chrome Specular Highlight */
 
-  /* Text & Ink Tokens */
-  --color-ink: HSL(222, 47%, 11%);                 /* Deep Ink Text (#0f172a) */
-  --color-secondary: HSL(215, 16%, 47%);           /* Muted Ink Secondary (#64748b) */
-  --color-ink-on-accent: HSL(0, 0%, 100%);         /* Text on Accent Accent (#ffffff) */
+  /* Text & Typography Tokens (Soft Pearl White & Pure Silver) */
+  --color-ink: HSL(0, 0%, 98%);                /* Soft Pearl White (#fafafa) */
+  --color-secondary: HSL(240, 5%, 70%);        /* Muted Brushed Silver Secondary (#b4b4bb) */
+  --color-ink-on-accent: HSL(0, 0%, 100%);    /* Text on Accent (#ffffff) */
 
-  /* Primary Accent System (Futuril Indigo-Cyber Accent) */
-  --color-accent: HSL(245, 82%, 60%);              /* Primary Accent (#5850ec) */
-  --color-accent-hover: HSL(245, 82%, 52%);        /* Hover Accent (#4338ca) */
-  --color-accent-subtle: HSL(245, 82%, 96%);       /* Subtle Accent Tint (#eef2ff) */
-  --color-accent-border: HSL(245, 82%, 85%);       /* Accent Border (#c7d2fe) */
+  /* Primary Accent System (Liquid Chrome & Pearl White Specular) */
+  --color-accent: HSL(0, 0%, 96%);             /* Liquid Chrome Specular (#f4f4f5) */
+  --color-accent-hover: HSL(0, 0%, 100%);      /* Pure Pearl Highlight (#ffffff) */
+  --color-accent-subtle: HSL(0, 0%, 100%, 0.05);/* Spatial Glass Shimmer */
+  --color-accent-border: HSL(0, 0%, 100%, 0.2);/* Delicate Specular Bevel */
 
-  /* Secondary Accent System (Futuril Slate Metallic) */
-  --color-secondary-bg: HSL(215, 25%, 27%);        /* Secondary Button/Badge (#334155) */
-  --color-secondary-hover: HSL(215, 25%, 18%);     /* Secondary Hover (#1e293b) */
+  /* Secondary Accent System (Translucent Chrome Glass) */
+  --color-secondary-bg: HSL(0, 0%, 100%, 0.08); /* Translucent Chrome Pill */
+  --color-secondary-hover: HSL(0, 0%, 100%, 0.14);
 
   /* State Tokens */
-  --color-destructive: HSL(0, 72%, 51%);           /* Danger (#ef4444) */
-  --color-destructive-bg: HSL(0, 86%, 97%);        /* Danger Surface (#fef2f2) */
-  --color-success: HSL(142, 71%, 45%);             /* Success (#22c55e) */
-  --color-success-bg: HSL(142, 76%, 96%);          /* Success Surface (#f0fdf4) */
+  --color-destructive: HSL(0, 75%, 55%);
+  --color-destructive-bg: HSL(0, 50%, 10%);
+  --color-success: HSL(142, 65%, 45%);
+  --color-success-bg: HSL(142, 50%, 10%);
+}
+
+/* Apple Vision Pro Spatial Glass Utility Classes */
+.vision-glass-panel {
+  background: rgba(12, 13, 18, 0.65);
+  backdrop-filter: blur(40px) saturate(140%);
+  -webkit-backdrop-filter: blur(40px) saturate(140%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 
+    0 20px 50px rgba(0, 0, 0, 0.7),
+    inset 0 1px 0 rgba(255, 255, 255, 0.18),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.4);
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.vision-glass-panel:hover {
+  border-color: rgba(255, 255, 255, 0.22);
+  box-shadow: 
+    0 25px 60px rgba(0, 0, 0, 0.8),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.5);
+}
+
+.vision-button {
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: #fafafa;
+  box-shadow: 
+    0 8px 24px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.22);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.vision-button:hover {
+  background: rgba(255, 255, 255, 0.16);
+  border-color: rgba(255, 255, 255, 0.3);
+  box-shadow: 
+    0 12px 30px rgba(0, 0, 0, 0.4),
+    0 0 20px rgba(255, 255, 255, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.35);
+}
+
+.vision-button-primary {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(226, 232, 240, 0.85) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  color: #090a0f;
+  font-weight: 600;
+  box-shadow: 
+    0 10px 30px rgba(0, 0, 0, 0.4),
+    0 0 25px rgba(255, 255, 255, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.vision-button-primary:hover {
+  background: linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%);
+  border-color: #ffffff;
+  box-shadow: 
+    0 14px 36px rgba(0, 0, 0, 0.5),
+    0 0 35px rgba(255, 255, 255, 0.3),
+    inset 0 1px 0 #ffffff;
 }

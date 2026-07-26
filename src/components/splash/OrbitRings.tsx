@@ -9,52 +9,54 @@ interface OrbitRingsProps {
 }
 
 /**
- * 5 Ultra-Thin Smooth 360° Elliptical Orbit Rings
- * Built with THREE.EllipseCurve and THREE.LineLoop for pristine 360° vector geometry inside WebGL space.
- * Layered behind central text (z = -0.15).
+ * 5 3D Liquid Chrome Orbit Ring Toruses
+ * Built with 3D torus geometries and physically-based chrome materials for metallic reflections.
+ * Layered behind central wordmark (z = -0.15).
  */
 export default function OrbitRings({
   radiusX = 1.6,
   radiusY = 0.75,
 }: OrbitRingsProps) {
-  const ringGeometries = useMemo(() => {
+  const rings = useMemo(() => {
     const scaleY = radiusY / radiusX;
     const configs = [
-      { rx: radiusX * 0.85, opacity: 0.14 },
-      { rx: radiusX * 1.0, opacity: 0.2 },
-      { rx: radiusX * 1.18, opacity: 0.25 },
-      { rx: radiusX * 1.35, opacity: 0.32 },
-      { rx: radiusX * 1.52, opacity: 0.5 }, // Outermost primary trajectory ring
+      { rx: radiusX * 0.85, opacity: 0.35, tube: 0.006 },
+      { rx: radiusX * 1.0, opacity: 0.45, tube: 0.007 },
+      { rx: radiusX * 1.18, opacity: 0.55, tube: 0.008 },
+      { rx: radiusX * 1.35, opacity: 0.65, tube: 0.009 },
+      { rx: radiusX * 1.52, opacity: 0.85, tube: 0.011 }, // Outermost primary trajectory ring
     ];
 
-    return configs.map((ring) => {
-      const curve = new THREE.EllipseCurve(
-        0, 0,
-        ring.rx, ring.rx * scaleY,
-        0, Math.PI * 2,
-        false,
-        0
-      );
-      const points = curve.getPoints(128);
-      const geo = new THREE.BufferGeometry().setFromPoints(
-        points.map((p) => new THREE.Vector3(p.x, p.y, 0))
-      );
-      return { geo, opacity: ring.opacity };
-    });
+    return configs.map((cfg) => ({
+      radius: cfg.rx,
+      scaleY,
+      tube: cfg.tube,
+      opacity: cfg.opacity,
+    }));
   }, [radiusX, radiusY]);
 
   return (
     <group position={[0, 0, -0.15]} rotation={[0.4, 0, 0]}>
-      {ringGeometries.map((ring, idx) => (
-        <lineLoop key={idx} geometry={ring.geo}>
-          <lineBasicMaterial
-            color="#e2e8f0"
-            transparent
-            opacity={ring.opacity}
-            depthWrite={true}
-            depthTest={true}
-          />
-        </lineLoop>
+      {rings.map((ring, idx) => (
+        <group key={idx} scale={[1, ring.scaleY, 1]}>
+          <mesh>
+            <torusGeometry args={[ring.radius, ring.tube, 16, 128]} />
+            <meshPhysicalMaterial
+              color="#ffffff"
+              metalness={0.92}
+              roughness={0.08}
+              clearcoat={1.0}
+              clearcoatRoughness={0.05}
+              reflectivity={1.0}
+              emissive="#e2e8f0"
+              emissiveIntensity={0.15}
+              transparent
+              opacity={ring.opacity}
+              depthWrite={true}
+              depthTest={true}
+            />
+          </mesh>
+        </group>
       ))}
     </group>
   );
